@@ -6,13 +6,177 @@ use chriskacerguis\RestServer\RestController;
 
 class Keramba extends RestController
 {
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct();
         $this->load->model('Keramba_model');
     }
     public function index_get()
     {
-        $data = $this->Keramba_model->getAllKeramba();
-        var_dump($data);
+
+        $user_id = $this->get('user_id');
+
+        if ($user_id === null) {
+            $data['status'] = false;
+
+            $data['message'] = 'please provide an id';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_BAD_REQUEST);
+        }
+
+
+        $keramba_id = $this->get('keramba_id');
+
+        if ($keramba_id === null) {
+            $keramba = $this->Keramba_model->getAllKeramba();
+
+            if ($keramba) {
+
+                $data['status'] = true;
+
+                $data['message'] = '';
+
+                $data['data'] = $keramba;
+            } else {
+                $data['status'] = true;
+
+                $data['message'] = '';
+
+                $data['data'] = [];
+            }
+
+            $this->response($data, RestController::HTTP_OK);
+        } else {
+            $keramba = $this->Keramba_model->getAllKeramba($keramba_id);
+
+            if ($keramba) {
+
+                $data['status'] = true;
+
+                $data['message'] = '';
+
+                $data['data'] = $keramba;
+
+                $this->response($data, RestController::HTTP_OK);
+            } else {
+                $data['status'] = false;
+
+                $data['message'] = 'keramba_id not found';
+
+                $data['data'] = '';
+
+                $this->response($data, RestController::HTTP_NOT_FOUND);
+            }
+        }
+    }
+
+    public function index_delete()
+    {
+        $keramba_id = $this->delete('keramba_id');
+
+        $user_id = $this->delete('user_id');
+
+        if ($user_id === null) {
+            $data['status'] = false;
+
+            $data['message'] = 'please provide an id';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_BAD_REQUEST);
+        }
+
+        if ($keramba_id === null) {
+
+            $data['status'] = false;
+
+            $data['message'] = 'provide a keramba_id!';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_BAD_REQUEST);
+        }
+
+        if ($this->Keramba_model->deleteKeramba($keramba_id) > 0) {
+
+            $data['status'] = true;
+
+            $data['message'] = 'deleted';
+
+            $data['data'] = $keramba_id;
+
+            $this->response($data, RestController::HTTP_OK);
+        } else {
+            $data['status'] = false;
+
+            $data['message'] = 'keramba_id not found';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function index_post()
+    {
+        $input['nama'] = $this->post('nama');
+
+        $input['ukuran'] = $this->post('ukuran');
+
+        $input['tanggal_install'] = $this->post('tanggal_install');
+
+        $input['user_id'] = $this->post('user_id');
+
+        if ($this->Keramba_model->createKeramba($input) > 0) {
+
+            $data['status'] = true;
+
+            $data['message'] = 'new keramba has been created';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_CREATED);
+        } else {
+            $data['status'] = false;
+
+            $data['message'] = 'failed to create new data';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function index_put()
+    {
+        $keramba_id = $this->put('keramba_id');
+
+        $input['nama'] = $this->put('nama');
+
+        $input['ukuran'] = $this->put('ukuran');
+
+        $input['tanggal_install'] = $this->put('tanggal_install');
+
+        $input['user_id'] = $this->put('user_id');
+
+        if ($this->Keramba_model->updateKeramba($input, $keramba_id) > 0) {
+            $data['status'] = true;
+
+            $data['message'] = 'keramba has been modified';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_OK);
+        } else {
+            $data['status'] = false;
+
+            $data['message'] = 'failed to update data';
+
+            $data['data'] = '';
+
+            $this->response($data, RestController::HTTP_BAD_REQUEST);
+        }
     }
 }
