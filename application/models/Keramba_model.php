@@ -19,15 +19,31 @@ class Keramba_model extends CI_Model
 
     public function createKeramba($data)
     {
-        $this->db->insert('keramba', $data);
-
-        return $this->db->affected_rows();
+        try {
+            if (!$this->db->insert('keramba', $data)) {
+                $msg = $this->db->error();
+                throw new Exception($msg['message'], $msg['code']);
+            } else {
+                return $this->db->affected_rows();
+            }
+        } catch (Exception $e) {
+            $e = $this->db->error();
+            throw new Exception($e['message'], $e['code']);
+        }
     }
 
     public function updateKeramba($data, $keramba_id)
     {
-        $this->db->update('keramba', $data, ['keramba_id'=> $keramba_id]);
-
-        return $this->db->affected_rows();
+        try {
+            if (!$this->db->update('keramba', $data, ['keramba_id' => $keramba_id])) {
+                $msg = $this->db->error();
+                throw new Exception($msg['message'], $msg['code']);
+            } else {
+                return $this->db->affected_rows();
+            }
+        } catch (Exception $e) {
+            $e = $this->db->error();
+            throw new Exception($e['message'], $e['code']);
+        }
     }
 }

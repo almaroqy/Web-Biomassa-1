@@ -1,16 +1,31 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
-require FCPATH . 'vendor/autoload.php';
 
-use chriskacerguis\RestServer\RestController;
+require APPPATH  . 'core/Api_Controller.php';
 
-class Keramba extends RestController
+class Keramba extends Api_Controller
 {
     public function __construct()
     {
         parent::__construct();
         $this->load->model('Keramba_model');
     }
+
+    private function responseError($e)
+    {
+        $error[0]['code'] = $e->getCode();
+
+        $error[0]['message'] = $e->getMessage();
+
+        $data['status'] = false;
+
+        $data['message'] = 'Error';
+
+        $data['data'] = $error;
+
+        $this->response($data, self::HTTP_BAD_REQUEST);
+    }
+
     public function index_get()
     {
 
@@ -19,11 +34,11 @@ class Keramba extends RestController
         if ($user_id === null) {
             $data['status'] = false;
 
-            $data['message'] = 'please provide an id';
+            $data['message'] = 'please provide an user id';
 
-            $data['data'] = '';
+            $data['data'] = [];
 
-            $this->response($data, RestController::HTTP_BAD_REQUEST);
+            $this->response($data, self::HTTP_BAD_REQUEST);
         }
 
 
@@ -47,7 +62,7 @@ class Keramba extends RestController
                 $data['data'] = [];
             }
 
-            $this->response($data, RestController::HTTP_OK);
+            $this->response($data, self::HTTP_OK);
         } else {
             $keramba = $this->Keramba_model->getAllKeramba($keramba_id);
 
@@ -59,15 +74,15 @@ class Keramba extends RestController
 
                 $data['data'] = $keramba;
 
-                $this->response($data, RestController::HTTP_OK);
+                $this->response($data, self::HTTP_OK);
             } else {
                 $data['status'] = false;
 
                 $data['message'] = 'keramba_id not found';
 
-                $data['data'] = '';
+                $data['data'] = [];
 
-                $this->response($data, RestController::HTTP_NOT_FOUND);
+                $this->response($data, self::HTTP_NOT_FOUND);
             }
         }
     }
@@ -81,11 +96,11 @@ class Keramba extends RestController
         if ($user_id === null) {
             $data['status'] = false;
 
-            $data['message'] = 'please provide an id';
+            $data['message'] = 'please provide an user id';
 
-            $data['data'] = '';
+            $data['data'] = [];
 
-            $this->response($data, RestController::HTTP_BAD_REQUEST);
+            $this->response($data, self::HTTP_BAD_REQUEST);
         }
 
         if ($keramba_id === null) {
@@ -94,9 +109,9 @@ class Keramba extends RestController
 
             $data['message'] = 'provide a keramba_id!';
 
-            $data['data'] = '';
+            $data['data'] = [];
 
-            $this->response($data, RestController::HTTP_BAD_REQUEST);
+            $this->response($data, self::HTTP_BAD_REQUEST);
         }
 
         if ($this->Keramba_model->deleteKeramba($keramba_id) > 0) {
@@ -107,15 +122,15 @@ class Keramba extends RestController
 
             $data['data'] = $keramba_id;
 
-            $this->response($data, RestController::HTTP_OK);
+            $this->response($data, self::HTTP_OK);
         } else {
             $data['status'] = false;
 
             $data['message'] = 'keramba_id not found';
 
-            $data['data'] = '';
+            $data['data'] = [];
 
-            $this->response($data, RestController::HTTP_BAD_REQUEST);
+            $this->response($data, self::HTTP_BAD_REQUEST);
         }
     }
 
@@ -129,23 +144,28 @@ class Keramba extends RestController
 
         $input['user_id'] = $this->post('user_id');
 
-        if ($this->Keramba_model->createKeramba($input) > 0) {
+        try {
 
-            $data['status'] = true;
+            if ($this->Keramba_model->createKeramba($input) > 0) {
 
-            $data['message'] = 'new keramba has been created';
+                $data['status'] = true;
 
-            $data['data'] = '';
+                $data['message'] = 'new keramba has been created';
 
-            $this->response($data, RestController::HTTP_CREATED);
-        } else {
-            $data['status'] = false;
+                $data['data'] = [];
 
-            $data['message'] = 'failed to create new data';
+                $this->response($data, self::HTTP_CREATED);
+            } else {
+                $data['status'] = false;
 
-            $data['data'] = '';
+                $data['message'] = 'failed to create new data';
 
-            $this->response($data, RestController::HTTP_BAD_REQUEST);
+                $data['data'] = [];
+
+                $this->response($data, self::HTTP_BAD_REQUEST);
+            }
+        } catch (Exception $e) {
+            $this->responseError($e);
         }
     }
 
@@ -161,22 +181,29 @@ class Keramba extends RestController
 
         $input['user_id'] = $this->put('user_id');
 
-        if ($this->Keramba_model->updateKeramba($input, $keramba_id) > 0) {
-            $data['status'] = true;
+        try {
 
-            $data['message'] = 'keramba has been modified';
+            $res = $this->Keramba_model->updateKeramba($input, $keramba_id);
 
-            $data['data'] = '';
+            if ($res > 0) {
+                $data['status'] = true;
 
-            $this->response($data, RestController::HTTP_OK);
-        } else {
-            $data['status'] = false;
+                $data['message'] = 'keramba has been modified';
 
-            $data['message'] = 'failed to update data';
+                $data['data'] = [];
 
-            $data['data'] = '';
+                $this->response($data, self::HTTP_OK);
+            } else {
+                $data['status'] = false;
 
-            $this->response($data, RestController::HTTP_BAD_REQUEST);
+                $data['message'] = 'failed to update data';
+
+                $data['data'] = [];
+
+                $this->response($data, self::HTTP_BAD_REQUEST);
+            }
+        } catch (Exception $e) {
+            $this->responseError($e);
         }
     }
 }
