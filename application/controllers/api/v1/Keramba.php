@@ -13,15 +13,11 @@ class Keramba extends Api_Controller
 
     private function responseError($e)
     {
-        $error[0]['code'] = $e->getCode();
-
-        $error[0]['message'] = $e->getMessage();
-
         $data['status'] = false;
 
-        $data['message'] = 'Error';
+        $data['message'] = 'Error code: ' .$e->getMessage();
 
-        $data['data'] = $error;
+        $data['data'] = [];
 
         $this->response($data, self::HTTP_BAD_REQUEST);
     }
