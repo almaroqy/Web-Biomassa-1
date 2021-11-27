@@ -196,7 +196,7 @@ class Keramba extends Api_Controller
 
                 $data['data'] = [];
 
-                $this->response($data, self::HTTP_BAD_REQUEST);
+                $this->response($data, self::HTTP_NOT_MODIFIED);
             }
         } catch (Exception $e) {
             $this->responseError($e);
